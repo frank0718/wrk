@@ -1,4 +1,7 @@
 // Copyright (C) 2012 - Will Glozer.  All rights reserved.
+// main file
+// comment by frank
+
 
 #include "wrk.h"
 #include "script.h"
@@ -15,13 +18,36 @@ static struct config {
     bool     latency;
     char    *host;
     char    *script;
-    SSL_CTX *ctx;
+    SSL_CTX *ctx;   //ssl context
 } cfg;
+// static代表全局的
+// 声明一个结构体struct config
+// 并创建变量 cfg
+
+
 
 static struct {
     stats *latency;
     stats *requests;
 } statistics;
+/*
+1、匿名声明。如：
+
+struct {
+
+   int i,j;
+
+}point;
+
+说明：
+
+>>这段代码的含义是，声明一个无名(anonymous)的结构体，并创建了一个结构体变量point。如果这段声明是放在全局域(在任意函数(比如main函数)外)内，那么point内的变量将被初始化为默认值，换句话说，以这种方式声明结构体变量时就已经为它分配了内存空间。
+
+>>适用于该结构体只需要产生一个变量！本例中，该匿名结构体将有且仅有point这个结构体变量！
+
+>>不同的匿名结构体变量，类型是不同的！如
+*/
+
 
 static struct sock sock = {
     .connect  = sock_connect,
@@ -30,10 +56,18 @@ static struct sock sock = {
     .write    = sock_write,
     .readable = sock_readable
 };
+// sock sock 同名是什么意思
+//结构体 定义和变量同名？ sock 类型系统定义的？ socket？
+// .开头的 ？这个是GUN标准/c99 标准，并不是c标准 ，加点表示结构体中可以不按成员顺序初始化。
+
 
 static struct http_parser_settings parser_settings = {
     .on_message_complete = response_complete
 };
+// 同上 。只是变量名和定义的名称不一致
+
+
+
 
 static volatile sig_atomic_t stop = 0;
 

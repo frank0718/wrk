@@ -19,6 +19,8 @@ struct sock {
     status (   *write)(connection *, char *, size_t, size_t *);
     size_t (*readable)(connection *);
 };
+// 定义了一个结构体sock ，在wrk.c 中有赋予变量
+
 
 status sock_connect(connection *, char *);
 status sock_close(connection *);

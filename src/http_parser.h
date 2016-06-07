@@ -20,6 +20,33 @@
  */
 #ifndef http_parser_h
 #define http_parser_h
+
+/*
+#ifndef __MODULE_A_H //对于模块A来说，这个宏是为了防止头文件的重复引用
+
+#define __MODULE_A_H
+*/
+
+ //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
+/*
+extern "C" 包含双重含义，从字面上即可得到：首先，被它修饰的目标是“extern”的；其次，被它修饰的目标是“C”的。
+（1） 被extern "C"限定的函数或变量是extern类型的
+extern是C/C++语言中表明函数和全局变量作用范围（可见性）的关键字，该关键字告诉编译器，
+其声明的函数和变量可以在本模块或其它模块中使用。记住，下列语句：
+extern int a;
+仅仅是一个变量的声明，其并不是在定义变量a，并未为a分配内存空间。变量a在所有模块中作为一种全局变量只
+能被定义一次，否则会出现连接错误。
+通常，在模块的头文件中对本模块提供给其它模块引用的函数和全局变量以关键字extern声明。
+例如，如果模块B欲引用该模块A中定义的全局变量和函数时只需包含模块A的头文件即可。
+这样，模块B中调用模块A中的函数时，在编译阶段，模块B虽然找不到该函数，但是并不会报错；
+它会在连接阶段中从模块A编译生成的目标代码中找到此函数。
+与extern对应的关键字是static，被它修饰的全局变量和函数只能在本模块中使用。
+因此，一个函数或变量只可能被本模块使用时，其不可能被extern “C”修饰。
+（2） 被extern "C"修饰的变量和函数是按照C语言方式编译和连接的
+*/
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,7 +57,9 @@ extern "C" {
 #define HTTP_PARSER_VERSION_PATCH 2
 
 #include <sys/types.h>
+// 如果是win环境
 #if defined(_WIN32) && !defined(__MINGW32__) && (!defined(_MSC_VER) || _MSC_VER<1600)
+
 #include <BaseTsd.h>
 #include <stddef.h>
 typedef __int8 int8_t;
@@ -41,6 +70,7 @@ typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
+// 非win环境
 #else
 #include <stdint.h>
 #endif
@@ -63,6 +93,7 @@ typedef unsigned __int64 uint64_t;
 # define HTTP_MAX_HEADER_SIZE (80*1024)
 #endif
 
+//why same name
 typedef struct http_parser http_parser;
 typedef struct http_parser_settings http_parser_settings;
 
@@ -127,6 +158,20 @@ enum http_method
 #undef XX
   };
 
+/*
+(1) 枚举型是一个集合，集合中的元素(枚举成员)是一些命名的整型常量，元素之间用逗号,隔开。
+
+(2) DAY是一个标识符，可以看成这个集合的名字，是一个可选项，即是可有可无的项。
+
+(3) 第一个枚举成员的默认值为整型的0，后续枚举成员的值在前一个成员上加1。
+
+(4) 可以人为设定枚举成员的值，从而自定义某个范围内的整数。
+
+(5) 枚举型是预处理指令#define的替代。
+
+(6) 类型定义以分号;结束。
+*/
+
 
 enum http_parser_type { HTTP_REQUEST, HTTP_RESPONSE, HTTP_BOTH };
 
@@ -144,7 +189,7 @@ enum flags
 
 
 /* Map for errno-related constants
- * 
+ *
  * The provided argument should be a macro that takes 2 arguments.
  */
 #define HTTP_ERRNO_MAP(XX)                                           \
@@ -187,6 +232,7 @@ enum flags
   XX(STRICT, "strict mode assertion failed")                         \
   XX(PAUSED, "parser is paused")                                     \
   XX(UNKNOWN, "an unknown error occurred")
+//  格式好奇怪。。
 
 
 /* Define HPE_* values for each errno value above */
@@ -229,6 +275,10 @@ struct http_parser {
   /** PUBLIC **/
   void *data; /* A pointer to get hook to the "connection" or "socket" object */
 };
+//  定义了一个结构体 ，里面的冒号的意思
+
+
+
 
 
 struct http_parser_settings {
@@ -294,6 +344,8 @@ size_t http_parser_execute(http_parser *parser,
                            const http_parser_settings *settings,
                            const char *data,
                            size_t len);
+
+
 
 
 /* If http_should_keep_alive() in the on_headers_complete or

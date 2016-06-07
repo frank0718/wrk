@@ -29,6 +29,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+//事件驱动的编程库
 
 #ifndef __AE_H__
 #define __AE_H__
@@ -51,6 +52,20 @@
 #define AE_NOTUSED(V) ((void) V)
 
 struct aeEventLoop;
+/*
+为复杂的声明定义一个新的简单的别名。方法是：在原来的声明里逐步用别名替换一部分复杂声明，如此循环，把带变量名的部分留到最后替换，得到的就是原声明的最简化版。举例：
+
+　　1. 原声明：int *(*a[5])(int, char*);
+
+　　变量名为a，直接用一个新别名pFun替换a就可以了：
+
+　　typedef int *(*pFun)(int, char*);
+
+　　原声明的最简化版：
+
+　　pFun a[5];
+*/
+
 
 /* Types and data structures */
 typedef void aeFileProc(struct aeEventLoop *eventLoop, int fd, void *clientData, int mask);
@@ -65,6 +80,7 @@ typedef struct aeFileEvent {
     aeFileProc *wfileProc;
     void *clientData;
 } aeFileEvent;
+//文件事件
 
 /* Time event structure */
 typedef struct aeTimeEvent {
@@ -76,6 +92,7 @@ typedef struct aeTimeEvent {
     void *clientData;
     struct aeTimeEvent *next;
 } aeTimeEvent;
+//时间事件
 
 /* A fired event */
 typedef struct aeFiredEvent {
@@ -99,6 +116,9 @@ typedef struct aeEventLoop {
 
 /* Prototypes */
 aeEventLoop *aeCreateEventLoop(int setsize);
+// 返回aeEventLoop类型的指针
+
+
 void aeDeleteEventLoop(aeEventLoop *eventLoop);
 void aeStop(aeEventLoop *eventLoop);
 int aeCreateFileEvent(aeEventLoop *eventLoop, int fd, int mask,
