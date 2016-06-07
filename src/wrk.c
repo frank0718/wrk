@@ -70,10 +70,28 @@ static struct http_parser_settings parser_settings = {
 
 
 static volatile sig_atomic_t stop = 0;
+/*
+volatile详解：
+
+1.volatile的本意是“易变的” 因为访问寄存器要比访问内存单元快的多,所以编译器一般都会作减少存取内存的优化，
+但有可能会读脏数据。当要求使用volatile声明变量值的时候，系统总是重新从它所在的内存读取数据，
+即使它前面的指令刚刚从该处读取过数据。精确地说就是，遇到这个关键字声明的变量，
+编译器对访问该变量的代码就不再进行优化，从而可以提供对特殊地址的稳定访问；如果不使用valatile，
+则编译器将对所声明的语句进行优化。（简洁的说就是：volatile关键词影响编译器编译的结果，
+用volatile声明的变量表示该变量随时可能发生变化，与该变量有关的运算，不要进行编译优化，以免出错）
+
+1>告诉compiler不能做任何优化
+2>用volatile定义的变量会在程序外被改变,每次都必须从内存中读取，而不能重复使用放在cache或寄存器中的备份。
+
+*/
+
+
 
 static void handler(int sig) {
     stop = 1;
 }
+//定义一个停止的handler
+
 
 static void usage() {
     printf("Usage: wrk <options> <url>                            \n"
@@ -91,10 +109,15 @@ static void usage() {
            "  Numeric arguments may include a SI unit (1k, 1M, 1G)\n"
            "  Time arguments may include a time unit (2s, 2m, 2h)\n");
 }
+// 定义help 函数
+
 
 int main(int argc, char **argv) {
     char *url, **headers = zmalloc(argc * sizeof(char *));
+    // zmalloc.h
     struct http_parser_url parts = {};
+// parts null
+
 
     if (parse_args(&cfg, &url, &parts, headers, argc, argv)) {
         usage();
