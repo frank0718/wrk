@@ -30,6 +30,7 @@ static struct {
     stats *latency;
     stats *requests;
 } statistics;
+
 /*
 1、匿名声明。如：
 
@@ -114,7 +115,7 @@ static void usage() {
 
 int main(int argc, char **argv) {
     char *url, **headers = zmalloc(argc * sizeof(char *));
-    // zmalloc.h
+    // zmalloc.h  分配内存
     struct http_parser_url parts = {};
 // parts null
 
@@ -123,14 +124,15 @@ int main(int argc, char **argv) {
         usage();
         exit(1);
     }
-
+//获取 元素
     char *schema  = copy_url_part(url, &parts, UF_SCHEMA);
     char *host    = copy_url_part(url, &parts, UF_HOST);
     char *port    = copy_url_part(url, &parts, UF_PORT);
     char *service = port ? port : schema;
 
+//如果是https
     if (!strncmp("https", schema, 5)) {
-        if ((cfg.ctx = ssl_init()) == NULL) {
+        if ((cfg.ctx = ssl_init()) == NULL) {   //获取ssl环境
             fprintf(stderr, "unable to initialize SSL\n");
             ERR_print_errors_fp(stderr);
             exit(1);
@@ -142,12 +144,16 @@ int main(int argc, char **argv) {
         sock.readable = ssl_readable;
     }
 
+
+//
     signal(SIGPIPE, SIG_IGN);
     signal(SIGINT,  SIG_IGN);
 
+// 分配内存
     statistics.latency  = stats_alloc(cfg.timeout * 1000);
     statistics.requests = stats_alloc(MAX_THREAD_RATE_S);
     thread *threads     = zcalloc(cfg.threads * sizeof(thread));
+
 
     lua_State *L = script_create(cfg.script, url, headers);
     if (!script_resolve(L, host, service)) {
@@ -523,6 +529,7 @@ static char *copy_url_part(char *url, struct http_parser_url *parts, enum http_p
     return part;
 }
 
+//长选项 和短选项的对应关系
 static struct option longopts[] = {
     { "connections", required_argument, NULL, 'c' },
     { "duration",    required_argument, NULL, 'd' },
@@ -536,11 +543,16 @@ static struct option longopts[] = {
     { NULL,          0,                 NULL,  0  }
 };
 
+
+// 解析wrk的参数
 static int parse_args(struct config *cfg, char **url, struct http_parser_url *parts, char **headers, int argc, char **argv) {
     char **header = headers;
     int c;
 
+// 初始化cfg 指针
     memset(cfg, 0, sizeof(struct config));
+
+// 默认的cfg的参数
     cfg->threads     = 2;
     cfg->connections = 10;
     cfg->duration    = 10;
@@ -549,19 +561,19 @@ static int parse_args(struct config *cfg, char **url, struct http_parser_url *pa
     while ((c = getopt_long(argc, argv, "t:c:d:s:H:T:Lrv?", longopts, NULL)) != -1) {
         switch (c) {
             case 't':
-                if (scan_metric(optarg, &cfg->threads)) return -1;
+                if (scan_metric(optarg, &cfg->threads)) return -1;  //参数值放在cfg的成员中？
                 break;
             case 'c':
                 if (scan_metric(optarg, &cfg->connections)) return -1;
                 break;
             case 'd':
-                if (scan_time(optarg, &cfg->duration)) return -1;
+                if (scan_time(optarg, &cfg->duration)) return -1; //时间单位，度量单位
                 break;
             case 's':
                 cfg->script = optarg;
                 break;
             case 'H':
-                *header++ = optarg;
+                *header++ = optarg; //增加header
                 break;
             case 'L':
                 cfg->latency = true;
@@ -581,14 +593,19 @@ static int parse_args(struct config *cfg, char **url, struct http_parser_url *pa
                 return -1;
         }
     }
+//t d 参数为空时 退出
 
     if (optind == argc || !cfg->threads || !cfg->duration) return -1;
+
+// 找到url对应的值 argv[optind]
+//解析url中的各种 参数
 
     if (!script_parse_url(argv[optind], parts)) {
         fprintf(stderr, "invalid URL: %s\n", argv[optind]);
         return -1;
     }
 
+//连接数必须大于线程数
     if (!cfg->connections || cfg->connections < cfg->threads) {
         fprintf(stderr, "number of connections must be >= threads\n");
         return -1;

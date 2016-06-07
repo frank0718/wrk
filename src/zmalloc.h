@@ -81,3 +81,66 @@ size_t zmalloc_size(void *ptr);
 #endif
 
 #endif /* __ZMALLOC_H */
+
+
+//comment for up
+/*
+#ifndef __ZMALLOC__H
+#define __ZMALLOC__H
+#define __xstr(s)  __str(s)
+//此处使用#将宏(这里是#紧跟的那个s)“字符串化”；使用##能将左右两边的标签组合在一起，而且两个标签之间不存在空格
+#define __str(s)  #s
+
+
+//分别判断使用tcmalloc库/jemalloc库/苹果库哪个作为底层的malloc函数调用
+#if defined(USED_TCMALLOC)
+#define ZMALLOC_LIB("tcmalloc-" __xstr(TC_VERSION_MAJOR) "." __xstr(TC_VERSION_MINOR))
+#include <google/tcmalloc.h>
+#if (TC_VERSION_MAJOR == 1 && TC_VERSION_MINOR >=6) || (TC_VERSION_MAJOR > 1)
+#define HAVE_MALLOC＿SIZE 1     //分别定义出内存占有量的计算方法
+#define zmalloc_size(p) tc_malloc_size(p)
+#else
+#error "new version of tcmalloc required"
+#endif
+
+
+#elif defined(USE_JEMALLOC)
+#define ZMALLOC_LIB("jemalloc-" __xstr(JEMALLOC_VERSION_MAJOR) "." __xstr(JEMAOOLC_VERSION_MINOR) "." __xstr(JEMALLOC_VERSION_BUGFIX))
+#include <jemalloc/jemalloc.h>
+#if (JEMALLOC_VERSION_MAJOR == 2 && JEMALLOC_VERSION_MINOR >= 1) || (JEMALLOC_VERSION_MAJOR > 2)
+#define HAVE_MALLOC_SIZE 1
+#define zmalloc_size(p) je_malloc_usable_size(p)
+#else
+#error "Newer version of jemalloc required"
+#endif
+
+#elif defined(__APPLE__)
+#include <malloc/malloc.h>
+#define HAVE_MALLOC_SIZE 1
+#define zmalloc_size(p) malloc_size(p)
+#endif
+
+#ifndef ZMALLOC_LIB
+#define ZMALLOC_LIB "libc"
+#endif
+
+//定义一些函数的原型
+void *zmalloc(size_t size);
+void zcalloc(size_t size);
+void zrealloc(void *ptr,size_t size);
+void zfree(void *ptr);
+char *zstrdup(const char *s);
+void zmalloc_used_memory(void);
+void zmalloc_enable_thread_safeness(void);
+void zmalloc_set_oom_handler(void(*oom_handler)(size_t));
+float zmalloc_get_fragmentation_ratio(void);
+size_t zmalloc_get_rss(void);
+size_t zmalloc_get_private_dirty(void);
+void zlibc_free(void *ptr);
+
+#ifndef HAVE_MALLOC_SIZE
+size_t zmalloc_size(void *ptr);
+#endif
+
+#endif
+*/

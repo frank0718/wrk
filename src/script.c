@@ -45,6 +45,8 @@ static const struct luaL_reg threadlib[] = {
     { NULL,         NULL                   }
 };
 
+
+//产生脚本
 lua_State *script_create(char *file, char *url, char **headers) {
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);
